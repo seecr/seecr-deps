@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ## begin license ##
 #
 # "Seecr Deps" to handle dependencies in python projects.
@@ -49,9 +49,9 @@ except ImportError:
         cache = YumBase()
         findVersionMethod = redhat_find_version
     except:
-        print "Neither Debian or Centos/Redhat; you are on your own!"
+        print("Neither Debian or Centos/Redhat; you are on your own!")
         exit(1)
-from StringIO import StringIO
+from io import StringIO
 import re
 
 packageLine = re.compile("(?P<package>\S+) \(\>.*")
@@ -64,7 +64,7 @@ def main(filename, inplace=False):
             packageName = match.groupdict()['package']
             installedVersion = findVersionMethod(packageName)
             if installedVersion is None:
-                print "Package '%s' is not currently installed!" % packageName
+                print("Package '%s' is not currently installed!" % packageName)
                 continue
             output.write("%s (>= %s)\n" % (packageName, installedVersion))
             output.write("%s (<< %s)\n" % (packageName, nextMajorVersion(installedVersion)))
@@ -74,9 +74,9 @@ def main(filename, inplace=False):
     if inplace:
         with open(filename, 'w') as f:
             f.write(output.getvalue())
-        print 'New dependencies written in:', filename
+        print('New dependencies written in:', filename)
     else:
-        print output.getvalue()
+        print(output.getvalue())
 
 
 
