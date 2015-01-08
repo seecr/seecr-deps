@@ -1,0 +1,2 @@
+python-seecr-test (>=1.4.0.1)
+python-seecr-test (<<1.5)

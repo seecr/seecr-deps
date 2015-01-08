@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+## begin license ##
+#
+# "Seecr Deps" to handle dependencies in python projects.
+#
+# Copyright (C) 2014-2015 Seecr (Seek You Too B.V.) http://seecr.nl
+#
+# This file is part of "Seecr Deps"
+#
+# "Seecr Deps" is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# "Seecr Deps" is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with "Seecr Deps"; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+## end license ##
+
+from optparse import OptionParser
+
+def debian_find_version(packageName):
+    if packageName not in cache or cache[packageName].installed is None:
+        return None
+
+    installedVersion = cache[packageName].installed.version
+    if '-' in installedVersion:
+        installedVersion = installedVersion.split('-', 1)[0]
+    return installedVersion
+
+def redhat_find_version(packageName):
+    result = cache.rpmdb.searchNevra(name=packageName)
+    return result[0].version if result else None
+
+findVersionMethod = None
+try:
+    from apt import Cache
+    cache = Cache()
+    findVersionMethod = debian_find_version
+except ImportError:
+    try:
+        from yum import YumBase
+        cache = YumBase()
+        findVersionMethod = redhat_find_version
+    except:
+        print "Neither Debian or Centos/Redhat; you are on your own!"
+        exit(1)
+from StringIO import StringIO
+import re
+
+packageLine = re.compile("(?P<package>\S+) \(\>.*")
+
+def main(filename, inplace=False):
+    output = StringIO()
+    for line in (l for l in open(filename) if l.strip()):
+        match = packageLine.match(line)
+        if match is not None:
+            packageName = match.groupdict()['package']
+            installedVersion = findVersionMethod(packageName)
+            if installedVersion is None:
+                print "Package '%s' is not currently installed!" % packageName
+                continue
+            output.write("%s (>= %s)\n" % (packageName, installedVersion))
+            output.write("%s (<< %s)\n" % (packageName, nextMajorVersion(installedVersion)))
+        elif '(' not in line:
+            output.write(line)
+
+    if inplace:
+        with open(filename, 'w') as f:
+            f.write(output.getvalue())
+        print 'New dependencies written in:', filename
+    else:
+        print output.getvalue()
+
+
+
+def nextMajorVersion(version):
+    parts = version.split('.')[:2]
+    return '%s.%s' % (parts[0], int(parts[1])+1)
+
+
+if __name__ == '__main__':
+    parser = OptionParser(usage="Usage: %prog [options] filename\n  Will create deps.txt contents based on the given filename.")
+    parser.add_option('-i', '', dest='inplace', action='store_true', default=False, help="Update dependency file in place.")
+    options, arguments = parser.parse_args()
+    if len(arguments) != 1:
+        parser.print_help()
+    else:
+        main(arguments[0], inplace=options.inplace)
