@@ -40,8 +40,6 @@ find tmp -type f -exec sed -e "
     s,^binDir = .*$,binDir = '$mydir/tmp/usr/local/bin',;
     " -i {} \;
 
-cp seecr/__init__.py $SITEPACKAGES/seecr/
-
 export SEECRTEST_USR_BIN="${mydir}/tmp/usr/bin"
 if [ -z "$@" ]; then
     runtests "alltests.sh"
