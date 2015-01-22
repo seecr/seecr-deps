@@ -25,7 +25,7 @@
 from seecr.test import SeecrTestCase
 from os import makedirs
 from os.path import join
-from seecr.deps import includeParentAndDeps
+from seecrdeps import includeParentAndDeps
 
 class DepsTest(SeecrTestCase):
 

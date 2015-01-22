@@ -30,7 +30,7 @@ source /usr/share/seecr-tools/functions.d/test
 
 rm -rf tmp build
 
-definePythonVars
+definePythonVars 3.4
 
 $PYTHON setup.py install --root tmp
 cp -r test tmp/test
@@ -39,8 +39,6 @@ removeDoNotDistribute tmp
 find tmp -type f -exec sed -e "
     s,^binDir = .*$,binDir = '$mydir/tmp/usr/local/bin',;
     " -i {} \;
-
-cp seecr/__init__.py $SITEPACKAGES/seecr/
 
 export SEECRTEST_USR_BIN="${mydir}/tmp/usr/bin"
 if [ -z "$@" ]; then

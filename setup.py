@@ -35,16 +35,10 @@ for path, dirs, files in walk('bin'):
         if file == 'sitecustomize.py':
             continue
         scripts.append(join(path, file))
-packages = []
-for path, dirs, files in walk('seecr'):
-    if '__init__.py' in files:
-        packagename = path.replace('/', '.')
-        packages.append(packagename)
-packages.remove('seecr') # done by seecr-core
 
 setup(
-    name='seecr-deps',
-    packages=packages,
+    name='seecrdeps',
+    packages=['seecrdeps'],
     scripts=scripts,
     version=version,
     url='http://www.seecr.nl',
