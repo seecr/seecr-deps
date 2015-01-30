@@ -57,6 +57,7 @@ import re
 packageLine = re.compile("(?P<package>\S+) \(\>.*")
 
 def main(filename, inplace=False):
+    packagesAdded = []
     output = StringIO()
     for line in (l for l in open(filename) if l.strip()):
         match = packageLine.match(line)
@@ -65,10 +66,12 @@ def main(filename, inplace=False):
             installedVersion = findVersionMethod(packageName)
             if installedVersion is None:
                 print "Package '%s' is not currently installed!" % packageName
-                continue
-            output.write("%s (>= %s)\n" % (packageName, installedVersion))
-            output.write("%s (<< %s)\n" % (packageName, nextMajorVersion(installedVersion)))
-        elif '(' not in line:
+            else:
+                output.write("%s (>= %s)\n" % (packageName, installedVersion))
+                output.write("%s (<< %s)\n" % (packageName, nextMajorVersion(installedVersion)))
+                packagesAdded.append(packageName)
+        packageName = line.split()[0]
+        if packageName not in packagesAdded:
             output.write(line)
 
     if inplace:
