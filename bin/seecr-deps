@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 ## begin license ##
 #
 # "Seecr Deps" to handle dependencies in python projects.
@@ -24,69 +24,7 @@
 ## end license ##
 
 from optparse import OptionParser
-
-def debian_find_version(packageName):
-    if packageName not in cache or cache[packageName].installed is None:
-        return None
-
-    installedVersion = cache[packageName].installed.version
-    if '-' in installedVersion:
-        installedVersion = installedVersion.split('-', 1)[0]
-    return installedVersion
-
-def redhat_find_version(packageName):
-    result = cache.rpmdb.searchNevra(name=packageName)
-    return result[0].version if result else None
-
-findVersionMethod = None
-try:
-    from apt import Cache
-    cache = Cache()
-    findVersionMethod = debian_find_version
-except ImportError:
-    try:
-        from yum import YumBase
-        cache = YumBase()
-        findVersionMethod = redhat_find_version
-    except:
-        print "Neither Debian or Centos/Redhat; you are on your own!"
-        exit(1)
-from StringIO import StringIO
-import re
-
-packageLine = re.compile("(?P<package>\S+) \(\>.*")
-
-def main(filename, inplace=False):
-    packagesAdded = []
-    output = StringIO()
-    for line in (l for l in open(filename) if l.strip()):
-        match = packageLine.match(line)
-        if match is not None:
-            packageName = match.groupdict()['package']
-            installedVersion = findVersionMethod(packageName)
-            if installedVersion is None:
-                print "Package '%s' is not currently installed!" % packageName
-            else:
-                output.write("%s (>= %s)\n" % (packageName, installedVersion))
-                output.write("%s (<< %s)\n" % (packageName, nextMajorVersion(installedVersion)))
-                packagesAdded.append(packageName)
-        packageName = line.split()[0]
-        if packageName not in packagesAdded:
-            output.write(line)
-
-    if inplace:
-        with open(filename, 'w') as f:
-            f.write(output.getvalue())
-        print 'New dependencies written in:', filename
-    else:
-        print output.getvalue()
-
-
-
-def nextMajorVersion(version):
-    parts = version.split('.')[:2]
-    return '%s.%s' % (parts[0], int(parts[1])+1)
-
+from seecrdeps.deps import Deps
 
 if __name__ == '__main__':
     parser = OptionParser(usage="Usage: %prog [options] filename\n  Will create deps.txt contents based on the given filename.")
@@ -95,4 +33,5 @@ if __name__ == '__main__':
     if len(arguments) != 1:
         parser.print_help()
     else:
-        main(arguments[0], inplace=options.inplace)
+        deps = Deps(filename=arguments[0])
+        deps.update(inline=options.inplace)
