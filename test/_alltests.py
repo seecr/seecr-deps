@@ -35,6 +35,7 @@ sysPath.insert(0, parentdir)                                   #DO_NOT_DISTRIBUT
 from unittest import main
 
 from depstest import DepsTest
+from updatedepstest import UpdateDepsTest
 
 if __name__ == '__main__':
     main()
