@@ -24,7 +24,7 @@
 from os.path import abspath, dirname, isdir, join
 from glob import glob
 
-def includeParentAndDeps(filename, systemPath=None, additionalPaths=None):
+def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, additionalPathsRelativeFromParent=False):
     if systemPath is None:
         from sys import path as systemPath
     parentDirectory = dirname(dirname(abspath(filename)))
@@ -33,4 +33,6 @@ def includeParentAndDeps(filename, systemPath=None, additionalPaths=None):
         list(map(lambda path: systemPath.insert(0, path), glob(join(depsDirectory, "*"))))
     systemPath.insert(0, parentDirectory)
     if additionalPaths:
-        list(map(lambda path: systemPath.insert(0, path), additionalPaths))
+        list(map(
+            lambda path: systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path), 
+            reversed(additionalPaths)))
