@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015-2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -49,4 +49,23 @@ class DepsTest(SeecrTestCase):
         includeParentAndDeps(join(self.tempdir, "level1", "level2", "bin", "thefile.py"), systemPath=systemPath, scanForDeps=True)
         self.assertEquals(set([self.tempdir, join(self.tempdir, "deps.d", "dep_one")]), set(systemPath))
 
+    def testAdditionalPaths(self):
+        makedirs(join(self.tempdir, "bin"))
 
+        systemPath = []
+        includeParentAndDeps(
+            join(self.tempdir, "bin", "thefile.py"),
+            systemPath=systemPath,
+            additionalPaths=['1', '2'])
+        self.assertEqual(set(['1', '2', self.tempdir]), set(systemPath))
+
+    def testAdditionalPathsRelativeFromParent(self):
+        makedirs(join(self.tempdir, "bin"))
+
+        systemPath = []
+        includeParentAndDeps(
+            join(self.tempdir, "bin", "thefile.py"),
+            systemPath=systemPath,
+            additionalPaths=['1', '2'],
+            additionalPathsRelativeFromParent=True)
+        self.assertEqual(set([join(self.tempdir,'1'), join(self.tempdir, '2'), self.tempdir]), set(systemPath))
