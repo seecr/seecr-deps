@@ -41,3 +41,12 @@ class DepsTest(SeecrTestCase):
         systemPath = []
         includeParentAndDeps(join(self.tempdir, "bin", "thefile.py"), systemPath=systemPath)
         self.assertEquals(set([self.tempdir, join(self.tempdir, "deps.d", "dep_two"), join(self.tempdir, "deps.d", "dep_one")]), set(systemPath))
+
+    def testIncludeParentAndDepsScanForParent(self):
+        makedirs(join(self.tempdir, "level1", "level2", "bin"))
+        makedirs(join(self.tempdir, 'deps.d', "dep_one"))
+        systemPath = []
+        includeParentAndDeps(join(self.tempdir, "level1", "level2", "bin", "thefile.py"), systemPath=systemPath, scanForDeps=True)
+        self.assertEquals(set([self.tempdir, join(self.tempdir, "deps.d", "dep_one")]), set(systemPath))
+
+
