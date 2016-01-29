@@ -42,7 +42,9 @@ def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, scanFo
 
     depsDirectory = join(parentDirectory, "deps.d")
     if isdir(depsDirectory):
-        map(lambda path: systemPath.insert(0, path), glob(join(depsDirectory, "*")))
+        for path in glob(join(depsDirectory, "*")):
+            systemPath.insert(0, path)
     systemPath.insert(0, parentDirectory)
-    if additionalPaths:
-        map(lambda path: systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path), additionalPaths)
+
+    for path in reversed(additionalPaths or []):
+        systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path)
