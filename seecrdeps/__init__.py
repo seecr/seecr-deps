@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015-2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -21,6 +21,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ## end license ##
+
 from os.path import abspath, dirname, isdir, join, isfile
 from glob import glob
 
@@ -41,10 +42,9 @@ def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, scanFo
 
     depsDirectory = join(parentDirectory, "deps.d")
     if isdir(depsDirectory):
-        map(lambda path: systemPath.insert(0, path), glob(join(depsDirectory, "*")))
+        for path in glob(join(depsDirectory, "*")):
+            systemPath.insert(0, path)
     systemPath.insert(0, parentDirectory)
 
-    if additionalPaths:
-        list(map(
-            lambda path: systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path), 
-            reversed(additionalPaths)))
+    for path in reversed(additionalPaths or []):
+        systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path)
