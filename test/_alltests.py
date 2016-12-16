@@ -36,6 +36,7 @@ from unittest import main
 
 from depstest import DepsTest
 from updatedepstest import UpdateDepsTest
+from cleanuptest import CleanUpTest
 
 if __name__ == '__main__':
     main()

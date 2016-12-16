@@ -24,48 +24,54 @@
 
 from seecr.test import SeecrTestCase
 from os import makedirs
-from os.path import join
+from os.path import join, isdir
 from seecrdeps import includeParentAndDeps
 
+
+def _ensureDir(*args):
+    path = join(*args)
+    if not isdir(path):
+        makedirs(path)
+    return path
+
+
 class DepsTest(SeecrTestCase):
-
     def testIncludeParentAndDeps(self):
-        makedirs(join(self.tempdir, "bin"))
+        bindir = _ensureDir(self.tempdir, "bin")
 
         systemPath = []
-        includeParentAndDeps(join(self.tempdir, "bin", "thefile.py"), systemPath=systemPath)
+        includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath)
         self.assertEquals([self.tempdir], systemPath)
-
-        makedirs(join(self.tempdir, "deps.d", "dep_one"))
-        makedirs(join(self.tempdir, "deps.d", "dep_two"))
+        depOne = _ensureDir(self.tempdir, "deps.d", "dep_one")
+        depTwo = _ensureDir(self.tempdir, "deps.d", "dep_two")
         systemPath = []
-        includeParentAndDeps(join(self.tempdir, "bin", "thefile.py"), systemPath=systemPath)
-        self.assertEquals(set([self.tempdir, join(self.tempdir, "deps.d", "dep_two"), join(self.tempdir, "deps.d", "dep_one")]), set(systemPath))
+        includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath)
+        self.assertEquals(set([self.tempdir, depOne, depTwo]), set(systemPath))
 
     def testIncludeParentAndDepsScanForParent(self):
-        makedirs(join(self.tempdir, "level1", "level2", "bin"))
-        makedirs(join(self.tempdir, 'deps.d', "dep_one"))
+        bindir = _ensureDir(self.tempdir, "level1", "level2", "bin")
+        depOne = _ensureDir(self.tempdir, "deps.d", "dep_one")
         systemPath = []
-        includeParentAndDeps(join(self.tempdir, "level1", "level2", "bin", "thefile.py"), systemPath=systemPath, scanForDeps=True)
-        self.assertEquals(set([self.tempdir, join(self.tempdir, "deps.d", "dep_one")]), set(systemPath))
+        includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath, scanForDeps=True)
+        self.assertEquals(set([self.tempdir, depOne]), set(systemPath))
 
     def testAdditionalPaths(self):
-        makedirs(join(self.tempdir, "bin"))
+        bindir = _ensureDir(self.tempdir, "bin")
 
         systemPath = []
         includeParentAndDeps(
-            join(self.tempdir, "bin", "thefile.py"),
+            join(bindir, "thefile.py"),
             systemPath=systemPath,
             additionalPaths=['1', '2'])
         self.assertEqual(set(['1', '2', self.tempdir]), set(systemPath))
 
     def testAdditionalPathsRelativeFromParent(self):
-        makedirs(join(self.tempdir, "bin"))
+        bindir = _ensureDir(self.tempdir, "bin")
 
         systemPath = []
         includeParentAndDeps(
-            join(self.tempdir, "bin", "thefile.py"),
+            join(bindir, "thefile.py"),
             systemPath=systemPath,
             additionalPaths=['1', '2'],
             additionalPathsRelativeFromParent=True)
-        self.assertEqual(set([join(self.tempdir,'1'), join(self.tempdir, '2'), self.tempdir]), set(systemPath))
+        self.assertEqual(set([join(self.tempdir, '1'), join(self.tempdir, '2'), self.tempdir]), set(systemPath))

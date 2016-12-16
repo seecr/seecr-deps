@@ -22,23 +22,17 @@
 #
 ## end license ##
 
-from os.path import abspath, dirname, isdir, join, isfile
+from os.path import abspath, dirname, isdir, join, isfile, splitext
+from os import walk, remove
 from glob import glob
 
 def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, scanForDeps=False, additionalPathsRelativeFromParent=False):
     if systemPath is None:
         from sys import path as systemPath
 
-    def hasDeps(d):
-        return isfile(join(d, "deps.txt")) or isdir(join(d, "deps.d"))
-
     parentDirectory = dirname(dirname(abspath(filename)))
     if scanForDeps:
-        while not hasDeps(parentDirectory):
-            parentDirectory = dirname(parentDirectory)
-            if parentDirectory == "/":
-                parentDirectory = dirname(dirname(abspath(filename)))
-                break
+        parentDirectory = _scanForDeps(parentDirectory) or parentDirectory
 
     depsDirectory = join(parentDirectory, "deps.d")
     if isdir(depsDirectory):
@@ -48,3 +42,21 @@ def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, scanFo
 
     for path in reversed(additionalPaths or []):
         systemPath.insert(0, join(parentDirectory, path) if additionalPathsRelativeFromParent else path)
+
+def _scanFor(path, condition):
+    return None if path == '/' else path if condition(path) else _scanFor(dirname(path), condition)
+
+def _scanForGit(path):
+    return _scanFor(path, lambda path: isdir(join(path, ".git")))
+
+def _scanForDeps(path):
+    return _scanFor(path, lambda path: isfile(join(path, "deps.txt")) or isdir(join(path, "deps.d")))
+
+def cleanup(filename, extentions=None):
+    if not extentions:
+        extentions = ['.pyc']
+    directory = dirname(abspath(filename))
+    startDirectory = _scanForGit(directory) or _scanForDeps(directory) or directory
+
+    for curdir, _, filenames in walk(startDirectory):
+        map(remove, [join(curdir, f) for f in filenames if splitext(f)[1] in extentions])
