@@ -22,7 +22,7 @@
 #
 ## end license ##
 
-from os.path import abspath, dirname, isdir, join, isfile, splitext
+from os.path import abspath, dirname, isdir, join, isfile, splitext, islink
 from os import walk, remove
 from glob import glob
 
@@ -35,7 +35,7 @@ def includeParentAndDeps(filename, systemPath=None, additionalPaths=None, scanFo
         parentDirectory = _scanForDeps(parentDirectory) or parentDirectory
 
     depsDirectory = join(parentDirectory, "deps.d")
-    if isdir(depsDirectory):
+    if isdir(depsDirectory) or islink(depsDirectory):
         for path in glob(join(depsDirectory, "*")):
             systemPath.insert(0, path)
     systemPath.insert(0, parentDirectory)
