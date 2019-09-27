@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015-2016 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015-2016, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -59,4 +59,4 @@ def cleanup(filename, extentions=None):
     startDirectory = _scanForGit(directory) or _scanForDeps(directory) or directory
 
     for curdir, _, filenames in walk(startDirectory):
-        map(remove, [join(curdir, f) for f in filenames if splitext(f)[1] in extentions])
+        list(map(remove, [join(curdir, f) for f in filenames if splitext(f)[1] in extentions]))

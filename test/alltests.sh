@@ -3,7 +3,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -26,19 +26,4 @@
 set -o errexit
 export LANG=en_US.UTF-8
 export PYTHONPATH=.:"$PYTHONPATH"
-option=$1
-pyversions=""
-if [ -f /usr/bin/python2.6 ]; then
-    pyversions="python2.6"
-fi
-if [ -f /usr/bin/python2.7 ]; then
-    pyversions="python2.7"
-fi
-if [ "${option:0:10}" == "--python2." ]; then
-    shift
-    pyversions="${option:2}"
-fi
-for pycmd in $pyversions; do
-    echo "================ $pycmd _alltests.py $@ ================"
-    $pycmd _alltests.py "$@"
-done
+python3 _alltests.py "$@"

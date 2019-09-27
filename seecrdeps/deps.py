@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2014-2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2014-2015, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -24,7 +24,7 @@
 
 from platform import dist
 from subprocess import Popen, PIPE
-from StringIO import StringIO
+from io import StringIO
 from functools import partial
 from os import rename
 import sys

@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015-2016 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015-2016, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -41,19 +41,19 @@ class DepsTest(SeecrTestCase):
 
         systemPath = []
         includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath)
-        self.assertEquals([self.tempdir], systemPath)
+        self.assertEqual([self.tempdir], systemPath)
         depOne = _ensureDir(self.tempdir, "deps.d", "dep_one")
         depTwo = _ensureDir(self.tempdir, "deps.d", "dep_two")
         systemPath = []
         includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath)
-        self.assertEquals(set([self.tempdir, depOne, depTwo]), set(systemPath))
+        self.assertEqual(set([self.tempdir, depOne, depTwo]), set(systemPath))
 
     def testIncludeParentAndDepsScanForParent(self):
         bindir = _ensureDir(self.tempdir, "level1", "level2", "bin")
         depOne = _ensureDir(self.tempdir, "deps.d", "dep_one")
         systemPath = []
         includeParentAndDeps(join(bindir, "thefile.py"), systemPath=systemPath, scanForDeps=True)
-        self.assertEquals(set([self.tempdir, depOne]), set(systemPath))
+        self.assertEqual(set([self.tempdir, depOne]), set(systemPath))
 
     def testAdditionalPaths(self):
         bindir = _ensureDir(self.tempdir, "bin")
