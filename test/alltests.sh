@@ -26,4 +26,5 @@
 set -o errexit
 export LANG=en_US.UTF-8
 export PYTHONPATH=.:"$PYTHONPATH"
+export PYTHONWARNINGS=default
 python3 _alltests.py "$@"

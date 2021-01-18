@@ -33,7 +33,7 @@ class Deps(object):
     def __init__(self, filename):
         self._filename = filename
         self.packageVersionFind = packageVersionFind()
-        self._myDistro = myDistro()
+        self._myDistoName, self._myDistro = myDistro()
 
     def update(self, inline=True):
         output = StringIO()
@@ -54,7 +54,7 @@ class Deps(object):
                     continue
 
                 # if a distro is set but its not my distro, print and skip
-                if not distro is None and distro != self._myDistro:
+                if not distro is None and not distro in {self._myDistro, self._myDistoName}:
                     output.write("%s\n" % line)
                     continue
 
@@ -95,8 +95,8 @@ def nextMajorVersion(version):
 
 def myDistro():
     if distro_mod.id() == 'debian':
-        return distro_mod.codename()
-    return "centos%s" % distro_mod.major_version()
+        return 'debian', distro_mod.codename()
+    return 'redhat', "centos%s" % distro_mod.major_version()
 
 def packageVersionFind():
     distroId = distro_mod.id()
@@ -104,8 +104,7 @@ def packageVersionFind():
         from apt import Cache
         return partial(debian_find_version, Cache())
     elif distroId in ['centos', 'rhel', 'fedora']:
-        from yum import YumBase
-        return partial(redhat_find_version, YumBase())
+        return redhat_find_version
     else:
         raise RuntimeError("Unsupported distro")
 
@@ -118,6 +117,10 @@ def debian_find_version(cache, packageName):
         installedVersion = installedVersion.split('-', 1)[0]
     return installedVersion
 
-def redhat_find_version(cache, packageName):
-    result = cache.rpmdb.searchNevra(name=packageName)
-    return result[0].version if result else None
+def redhat_find_version(packageName):
+    from dnf import Base
+    with Base() as base:
+        base.fill_sack()
+        result = list(base.sack.query().installed().filter(name=packageName))
+        if result:
+            return result[0].version

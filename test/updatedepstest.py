@@ -68,6 +68,7 @@ seecr-deps (<< 1.3)
         with open(filename, "w") as fp:
             fp.write("""# This is a comment
 python
+#debian:python3-apt (>= 0)
 seecr-deps (>= 1.0)
 seecr-deps (<< 1.1)
 #jessie:python3-weightless-core (>= 1.0)
@@ -80,12 +81,14 @@ seecr-deps (<< 1.1)
 
         deps = Deps(filename=filename)
         deps._myDistro = 'jessie'
-        versions = {'python': '3.4', 'seecr-deps': '1.2.3.4', 'python3-weightless-core': '2.0'}
+        versions = {'python': '3.4', 'seecr-deps': '1.2.3.4', 'python3-weightless-core': '2.0', 'python3-apt': '4.2'}
         deps.packageVersionFind = lambda packageName: versions[packageName] if packageName in versions else None
         deps.update(inline=True)
         with open(filename, 'r') as fp:
             self.assertEqual("""# This is a comment
 python
+#debian:python3-apt (>= 4.2)
+#debian:python3-apt (<< 4.3)
 seecr-deps (>= 1.2.3.4)
 seecr-deps (<< 1.3)
 #jessie:python3-weightless-core (>= 2.0)
