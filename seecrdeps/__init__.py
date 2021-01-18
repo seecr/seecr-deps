@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015-2016, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015-2016, 2019-2021 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #

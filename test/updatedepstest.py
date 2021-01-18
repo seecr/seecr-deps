@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015, 2019-2021 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -45,6 +45,7 @@ seecr-deps (<< 1.1)
 #wheezy:python-weightless-core""")
 
         deps = Deps(filename=filename)
+        deps._myDistro = 'jessie'
         versions = {'python': '3.4', 'seecr-deps': '1.2.3.4', 'python3-weightless-core': '2.0'}
         deps.packageVersionFind = lambda packageName: versions[packageName] if packageName in versions else None
         with stdout_replaced() as strm:
@@ -78,6 +79,7 @@ seecr-deps (<< 1.1)
 """)
 
         deps = Deps(filename=filename)
+        deps._myDistro = 'jessie'
         versions = {'python': '3.4', 'seecr-deps': '1.2.3.4', 'python3-weightless-core': '2.0'}
         deps.packageVersionFind = lambda packageName: versions[packageName] if packageName in versions else None
         deps.update(inline=True)

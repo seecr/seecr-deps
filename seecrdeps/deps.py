@@ -2,7 +2,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2014-2015, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2014-2015, 2019-2021 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -22,12 +22,12 @@
 #
 ## end license ##
 
-from platform import dist
 from subprocess import Popen, PIPE
 from io import StringIO
 from functools import partial
 from os import rename
 import sys
+import distro as distro_mod
 
 class Deps(object):
     def __init__(self, filename):
@@ -43,7 +43,7 @@ class Deps(object):
                 if line == '' or line.startswith("# "):
                     output.write("%s\n" % line)
                     continue
-                
+
                 name, version = line.split(' ', 1) if ' ' in line else (line, None)
                 distro, name = name.split(':', 1) if ':' in name else (None, name)
                 if not distro is None:
@@ -52,7 +52,7 @@ class Deps(object):
                 # skip if already done, this gets rid of the 2nd line with the << line for packages
                 if (distro, name) in packagesSeen:
                     continue
-               
+
                 # if a distro is set but its not my distro, print and skip
                 if not distro is None and distro != self._myDistro:
                     output.write("%s\n" % line)
@@ -65,7 +65,7 @@ class Deps(object):
                     sys.stderr.flush()
                     output.write("%s\n" % line)
                     continue
-                
+
                 # 'VERSION' is reserved and will be replaced at package build time
                 if version is None or 'VERSION' in version:
                     output.write("%s\n" % line)
@@ -94,24 +94,16 @@ def nextMajorVersion(version):
     return '%s.%s' % (parts[0], int(parts[1])+1)
 
 def myDistro():
-    distro, version, codename = dist()
-    majorVersion = version[0]
-    if distro == 'debian':
-        proc = Popen(["lsb_release", "-sc"], stdout=PIPE)
-        try:
-            codename, _ = proc.communicate()
-        finally:
-            proc.wait()
-            codename = codename.decode().strip()
-        return codename
-    return "%s%s" % (distro, majorVersion)
+    if distro_mod.id() == 'debian':
+        return distro_mod.codename()
+    return "centos%s" % distro_mod.major_version()
 
 def packageVersionFind():
-    distro = dist()[0]
-    if distro == 'debian':
+    distroId = distro_mod.id()
+    if distroId == 'debian':
         from apt import Cache
         return partial(debian_find_version, Cache())
-    elif distro in ['centos', 'redhat']:
+    elif distroId in ['centos', 'rhel', 'fedora']:
         from yum import YumBase
         return partial(redhat_find_version, YumBase())
     else:
