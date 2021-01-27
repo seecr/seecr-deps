@@ -3,7 +3,7 @@
 #
 # "Seecr Deps" to handle dependencies in python projects.
 #
-# Copyright (C) 2014-2015, 2019 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2014-2015, 2019, 2021 Seecr (Seek You Too B.V.) https://seecr.nl
 #
 # This file is part of "Seecr Deps"
 #
@@ -23,15 +23,13 @@
 #
 ## end license ##
 
-from optparse import OptionParser
+from argparse import ArgumentParser
 from seecrdeps.deps import Deps
 
 if __name__ == '__main__':
-    parser = OptionParser(usage="Usage: %prog [options] filename\n  Will create deps.txt contents based on the given filename.")
-    parser.add_option('-i', '', dest='inplace', action='store_true', default=False, help="Update dependency file in place.")
-    options, arguments = parser.parse_args()
-    if len(arguments) != 1:
-        parser.print_help()
-    else:
-        deps = Deps(filename=arguments[0])
-        deps.update(inline=options.inplace)
+    parser = ArgumentParser(description="Will create deps.txt contents based on the given filename.")
+    parser.add_argument('-i', dest='inplace', action='store_true', default=False, help="Update dependency file in place.")
+    parser.add_argument('filename', help="Creates dependency list based on this file (usually deps.txt)", nargs=1)
+    args = parser.parse_args()
+    deps = Deps(filename=args.filename[0])
+    deps.update(inline=args.inplace)
